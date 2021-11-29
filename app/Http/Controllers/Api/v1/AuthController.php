@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\LogupRequest;
+use App\Http\Requests\RecoverRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Session\Store;
 
 class AuthController extends Controller
 {
@@ -23,8 +25,9 @@ class AuthController extends Controller
         {
             if (hash("sha256", $request->get("password").$user->salt) == $user->password)
             {
-                session(["user_id"=>$user->id]);
-                return Response("ok", \Illuminate\Http\Response::HTTP_OK);
+                $token = md5(random_bytes(64));
+                session()->put("user_id", $user->id);
+                return Response(["session"=>$token], \Illuminate\Http\Response::HTTP_OK);
             }
         }
         return Response("fail", \Illuminate\Http\Response::HTTP_FORBIDDEN);
@@ -39,7 +42,7 @@ class AuthController extends Controller
         return $newUser??Response("fail", \Illuminate\Http\Response::HTTP_FORBIDDEN);
     }
 
-    public function recover(Request $request)
+    public function recover(RecoverRequest $request)
     {
         return Response("В РАЗРАБОТКЕ", Response::HTTP_NO_CONTENT);
     }
